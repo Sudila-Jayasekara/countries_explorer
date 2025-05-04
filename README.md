@@ -101,6 +101,10 @@ To run tests:
 pnpm test
 ```
 
+## Hosted Application
+
+You can access the live version of the application here: [REST Countries Explorer](https://countries-explorer-ebon.vercel.app)
+
 ## Deployment
 
 The application can be deployed to any static hosting service such as Vercel, Netlify, or GitHub Pages.
