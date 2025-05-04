@@ -6,7 +6,13 @@ import { FaHeart, FaArrowLeft } from 'react-icons/fa';
 import { motion } from 'framer-motion';
 
 const FavoritesPage = () => {
-  const { user, favoriteCountries } = useAuth();
+  const { user, userFavorites } = useAuth(); // Use userFavorites instead of favoriteCountries
+
+  // Safely retrieve the logged-in user's favorites
+  const userFavoritesList = user && userFavorites && user.email && userFavorites[user.email]
+    ? userFavorites[user.email]
+    : [];
+
   const navigate = useNavigate();
 
   // Redirect if not logged in
@@ -72,7 +78,7 @@ const FavoritesPage = () => {
       </div>
 
       {/* Favorites List */}
-      {favoriteCountries.length === 0 ? (
+      {userFavoritesList.length === 0 ? (
         <div className="bg-gray-50 dark:bg-dark-800 rounded-lg p-8 text-center">
           <h2 className="text-xl mb-4">You haven't added any favorites yet!</h2>
           <p className="text-gray-600 dark:text-gray-400 mb-6">
@@ -89,7 +95,7 @@ const FavoritesPage = () => {
           initial="hidden"
           animate="visible"
         >
-          {favoriteCountries.map((country) => (
+          {userFavoritesList.map((country) => (
             <motion.div key={country.cca3} variants={itemVariants}>
               <CountryCard country={country} />
             </motion.div>
