@@ -38,7 +38,7 @@ The application integrates with the [REST Countries API](https://restcountries.c
 ### Prerequisites
 
 - Node.js (v14 or later)
-- npm or yarn
+- pnpm or yarn
 
 ### Installation
 
@@ -50,12 +50,12 @@ cd rest-countries-explorer
 
 2. Install dependencies
 ```bash
-npm install
+pnpm install
 ```
 
 3. Start the development server
 ```bash
-npm run dev
+pnpm dev
 ```
 
 4. Open your browser and navigate to `http://localhost:5173`
@@ -65,7 +65,7 @@ npm run dev
 To build the application for production, run:
 
 ```bash
-npm run build
+pnpm build
 ```
 
 The build files will be located in the `dist` directory.
@@ -98,7 +98,7 @@ Note: This is a frontend-only implementation that uses localStorage for persiste
 To run tests:
 
 ```bash
-npm run test
+pnpm test
 ```
 
 ## Deployment
