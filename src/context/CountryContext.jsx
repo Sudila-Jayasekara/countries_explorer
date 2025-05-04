@@ -1,10 +1,8 @@
 import { createContext, useContext, useState, useEffect } from 'react';
 import { fetchAllCountries, searchCountriesByName, fetchCountriesByRegion } from '../utils/api';
 
-// Create the context
 const CountryContext = createContext();
 
-// Provide the context
 export const CountryProvider = ({ children }) => {
   const [countries, setCountries] = useState([]);
   const [filteredCountries, setFilteredCountries] = useState([]);
@@ -12,6 +10,8 @@ export const CountryProvider = ({ children }) => {
   const [error, setError] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [regionFilter, setRegionFilter] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage] = useState(12);
 
   // Fetch all countries on initial load
   useEffect(() => {
@@ -38,27 +38,21 @@ export const CountryProvider = ({ children }) => {
     const applyFilters = async () => {
       setLoading(true);
       setError(null);
+      setCurrentPage(1); // Reset to first page when filters change
       
       try {
         let results = [];
         
-        // If we have both search and region filter
         if (searchTerm && regionFilter) {
           const searchResults = await searchCountriesByName(searchTerm);
           results = searchResults.filter(country => 
             country.region.toLowerCase() === regionFilter.toLowerCase()
           );
-        }
-        // If we only have search term
-        else if (searchTerm) {
+        } else if (searchTerm) {
           results = await searchCountriesByName(searchTerm);
-        }
-        // If we only have region filter
-        else if (regionFilter) {
+        } else if (regionFilter) {
           results = await fetchCountriesByRegion(regionFilter);
-        }
-        // If we have neither, show all countries
-        else {
+        } else {
           results = countries;
         }
         
@@ -71,7 +65,6 @@ export const CountryProvider = ({ children }) => {
       }
     };
 
-    // Debounce search to avoid too many API calls
     const debounceTimer = setTimeout(() => {
       applyFilters();
     }, 300);
@@ -79,10 +72,17 @@ export const CountryProvider = ({ children }) => {
     return () => clearTimeout(debounceTimer);
   }, [searchTerm, regionFilter, countries]);
 
+  // Get current countries for pagination
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentCountries = filteredCountries.slice(indexOfFirstItem, indexOfLastItem);
+  const totalPages = Math.ceil(filteredCountries.length / itemsPerPage);
+
   // Clear all filters
   const clearFilters = () => {
     setSearchTerm('');
     setRegionFilter('');
+    setCurrentPage(1);
     setFilteredCountries(countries);
   };
 
@@ -90,7 +90,12 @@ export const CountryProvider = ({ children }) => {
     <CountryContext.Provider
       value={{
         countries,
-        filteredCountries,
+        filteredCountries: currentCountries,
+        totalItems: filteredCountries.length,
+        currentPage,
+        setCurrentPage,
+        totalPages,
+        itemsPerPage,
         loading,
         error,
         searchTerm,
@@ -105,7 +110,6 @@ export const CountryProvider = ({ children }) => {
   );
 };
 
-// Custom hook to use the country context
 export const useCountries = () => {
   const context = useContext(CountryContext);
   

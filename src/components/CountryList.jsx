@@ -1,12 +1,20 @@
 import { useCountries } from '../context/CountryContext';
 import CountryCard from './CountryCard';
+import Pagination from './Pagination';
 import { FaSpinner } from 'react-icons/fa';
 import { motion } from 'framer-motion';
 
 const CountryList = () => {
-  const { filteredCountries, loading, error } = useCountries();
+  const { 
+    filteredCountries, 
+    loading, 
+    error,
+    currentPage,
+    setCurrentPage,
+    totalPages,
+    totalItems
+  } = useCountries();
 
-  // Animation variants for list and items
   const listVariants = {
     hidden: { opacity: 0 },
     visible: {
@@ -38,7 +46,7 @@ const CountryList = () => {
     );
   }
 
-  if (filteredCountries.length === 0) {
+  if (totalItems === 0) {
     return (
       <div className="text-center py-10">
         <h3 className="text-xl mb-2">No countries found</h3>
@@ -48,18 +56,26 @@ const CountryList = () => {
   }
 
   return (
-    <motion.div 
-      className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8"
-      variants={listVariants}
-      initial="hidden"
-      animate="visible"
-    >
-      {filteredCountries.map((country) => (
-        <motion.div key={country.cca3} variants={itemVariants}>
-          <CountryCard country={country} />
-        </motion.div>
-      ))}
-    </motion.div>
+    <>
+      <motion.div 
+        className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8"
+        variants={listVariants}
+        initial="hidden"
+        animate="visible"
+      >
+        {filteredCountries.map((country) => (
+          <motion.div key={country.cca3} variants={itemVariants}>
+            <CountryCard country={country} />
+          </motion.div>
+        ))}
+      </motion.div>
+
+      <Pagination 
+        currentPage={currentPage}
+        totalPages={totalPages}
+        onPageChange={setCurrentPage}
+      />
+    </>
   );
 };
 

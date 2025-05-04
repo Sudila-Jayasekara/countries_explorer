@@ -13,16 +13,18 @@ const HomePage = () => {
     clearFilters, 
     loading, 
     error,
-    filteredCountries
+    totalItems,
+    currentPage,
+    itemsPerPage
   } = useCountries();
 
-  // Update document title
   useEffect(() => {
     document.title = 'Countries Explorer | Home';
   }, []);
 
-  // Check if filters are applied
   const hasFilters = searchTerm || regionFilter;
+  const startIndex = (currentPage - 1) * itemsPerPage + 1;
+  const endIndex = Math.min(startIndex + itemsPerPage - 1, totalItems);
 
   return (
     <motion.div 
@@ -32,7 +34,6 @@ const HomePage = () => {
       exit={{ opacity: 0 }}
       transition={{ duration: 0.5 }}
     >
-      {/* Hero Banner */}
       <div className="bg-gradient-to-r from-primary-600 to-secondary-600 dark:from-primary-700 dark:to-secondary-700 rounded-xl p-8 mb-10 text-white">
         <div className="flex flex-col md:flex-row items-center gap-6">
           <div className="text-4xl">
@@ -47,13 +48,11 @@ const HomePage = () => {
         </div>
       </div>
 
-      {/* Search and Filter Controls */}
       <div className="flex flex-col sm:flex-row gap-4 justify-between items-start sm:items-center mb-8">
         <SearchBar />
         <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
           <FilterDropdown />
           
-          {/* Clear Filters Button (visible only when filters are applied) */}
           {hasFilters && (
             <button 
               onClick={clearFilters}
@@ -61,24 +60,22 @@ const HomePage = () => {
               aria-label="Clear all filters"
             >
               <FaTimes />
-              <span>Clear</span>
+              <span>Clear Filters</span>
             </button>
           )}
         </div>
       </div>
 
-      {/* Filter Summary (when filters are applied) */}
-      {hasFilters && !loading && !error && (
+      {hasFilters && !loading && !error && totalItems > 0 && (
         <div className="mb-6 text-gray-600 dark:text-gray-300">
           <p>
-            Showing {filteredCountries.length} {filteredCountries.length === 1 ? 'country' : 'countries'}
+            Showing {startIndex}-{endIndex} of {totalItems} {totalItems === 1 ? 'country' : 'countries'}
             {searchTerm && ` matching "${searchTerm}"`}
             {regionFilter && ` in ${regionFilter}`}
           </p>
         </div>
       )}
 
-      {/* Country Grid */}
       <CountryList />
     </motion.div>
   );
