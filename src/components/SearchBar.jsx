@@ -1,34 +1,47 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { FaSearch, FaTimes } from 'react-icons/fa';
 import { useCountries } from '../context/CountryContext';
+
+// Custom debounce hook
+const useDebounce = (value, delay) => {
+  const [debouncedValue, setDebouncedValue] = useState(value);
+
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedValue(value);
+    }, delay);
+
+    return () => clearTimeout(handler);
+  }, [value, delay]);
+
+  return debouncedValue;
+};
 
 const SearchBar = () => {
   const { searchTerm, setSearchTerm } = useCountries();
   const [localSearchTerm, setLocalSearchTerm] = useState(searchTerm);
+  const debouncedSearchTerm = useDebounce(localSearchTerm, 200);
 
-  // Update local search term when context search term changes
+  // Sync local search term with context search term
   useEffect(() => {
     setLocalSearchTerm(searchTerm);
   }, [searchTerm]);
 
-  // Handle search input changes with debounce
-  const handleSearchChange = (e) => {
-    const value = e.target.value;
-    setLocalSearchTerm(value);
+  // Update context search term when debounced value changes
+  useEffect(() => {
+    setSearchTerm(debouncedSearchTerm);
+  }, [debouncedSearchTerm, setSearchTerm]);
 
-    // Debounce search input
-    const debounceTimeout = setTimeout(() => {
-      setSearchTerm(value);
-    }, 300);
-
-    return () => clearTimeout(debounceTimeout);
-  };
+  // Handle search input changes
+  const handleSearchChange = useCallback((e) => {
+    setLocalSearchTerm(e.target.value);
+  }, []);
 
   // Clear search input
-  const handleClearSearch = () => {
+  const handleClearSearch = useCallback(() => {
     setLocalSearchTerm('');
     setSearchTerm('');
-  };
+  }, [setSearchTerm]);
 
   return (
     <div className="relative w-full max-w-lg">
