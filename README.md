@@ -44,7 +44,7 @@ The application integrates with the [REST Countries API](https://restcountries.c
 
 1. Clone the repository
 ```bash
-git clone https://github.com/yourusername/rest-countries-explorer.git
+git clone https://github.com/sudilajayasekara/rest-countries-explorer.git
 cd rest-countries-explorer
 ```
 
