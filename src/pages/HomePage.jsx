@@ -61,7 +61,7 @@ const HomePage = () => {
               aria-label="Clear all filters"
             >
               <FaTimes />
-              <span>Clear Filters</span>
+              <span>Clear</span>
             </button>
           )}
         </div>
