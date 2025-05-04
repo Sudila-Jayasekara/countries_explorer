@@ -9,9 +9,9 @@ export const AuthProvider = ({ children }) => {
     return savedUser ? JSON.parse(savedUser) : null;
   });
   
-  const [favoriteCountries, setFavoriteCountries] = useState(() => {
-    const saved = localStorage.getItem('favoriteCountries');
-    return saved ? JSON.parse(saved) : [];
+  const [userFavorites, setUserFavorites] = useState(() => {
+    const saved = localStorage.getItem('userFavorites');
+    return saved ? JSON.parse(saved) : {};
   });
 
   // Update localStorage when user or favorites change
@@ -24,19 +24,16 @@ export const AuthProvider = ({ children }) => {
   }, [user]);
 
   useEffect(() => {
-    localStorage.setItem('favoriteCountries', JSON.stringify(favoriteCountries));
-  }, [favoriteCountries]);
+    localStorage.setItem('userFavorites', JSON.stringify(userFavorites));
+  }, [userFavorites]);
 
   // Login function - in a real app, this would make an API call
   const login = (email, password) => {
-    // Simulate authentication
-    if (email && password) {
-      const userData = {
-        email,
-        name: email.split('@')[0], // Use part of email as name
-        isAuthenticated: true,
-      };
-      setUser(userData);
+    const storedUsers = JSON.parse(localStorage.getItem('users')) || {};
+    const userData = storedUsers[email];
+
+    if (userData && userData.password === password) {
+      setUser({ email, name: userData.name, isAuthenticated: true });
       return true;
     }
     return false;
@@ -44,14 +41,12 @@ export const AuthProvider = ({ children }) => {
 
   // Register function - in a real app, this would make an API call
   const register = (email, password) => {
-    // Simulate registration
-    if (email && password) {
-      const userData = {
-        email,
-        name: email.split('@')[0],
-        isAuthenticated: true,
-      };
-      setUser(userData);
+    const storedUsers = JSON.parse(localStorage.getItem('users')) || {};
+
+    if (!storedUsers[email]) {
+      storedUsers[email] = { name: email.split('@')[0], password };
+      localStorage.setItem('users', JSON.stringify(storedUsers));
+      setUser({ email, name: email.split('@')[0], isAuthenticated: true });
       return true;
     }
     return false;
@@ -65,28 +60,34 @@ export const AuthProvider = ({ children }) => {
   // Favorite country functions
   const addFavorite = (country) => {
     if (!user) return false;
-    
-    setFavoriteCountries(prev => {
-      // Check if country is already a favorite
-      if (prev.some(c => c.cca3 === country.cca3)) {
-        return prev;
-      }
-      return [...prev, country];
+
+    setUserFavorites((prev) => {
+      const userFavs = prev[user.email] || [];
+      if (userFavs.some((c) => c.cca3 === country.cca3)) return prev;
+
+      return {
+        ...prev,
+        [user.email]: [...userFavs, country],
+      };
     });
     return true;
   };
 
   const removeFavorite = (countryCode) => {
     if (!user) return false;
-    
-    setFavoriteCountries(prev => 
-      prev.filter(country => country.cca3 !== countryCode)
-    );
+
+    setUserFavorites((prev) => {
+      const userFavs = prev[user.email] || [];
+      return {
+        ...prev,
+        [user.email]: userFavs.filter((country) => country.cca3 !== countryCode),
+      };
+    });
     return true;
   };
 
   const isFavorite = (countryCode) => {
-    return favoriteCountries.some(country => country.cca3 === countryCode);
+    return (userFavorites[user.email] || []).some((country) => country.cca3 === countryCode);
   };
 
   return (
@@ -96,7 +97,7 @@ export const AuthProvider = ({ children }) => {
         login, 
         logout, 
         register, 
-        favoriteCountries,
+        userFavorites,
         addFavorite,
         removeFavorite,
         isFavorite
