@@ -52,7 +52,7 @@ const HomePage = () => {
 
       <div className="flex flex-col sm:flex-row gap-4 justify-between items-start sm:items-center mb-8">
         <SearchBar />
-        <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
+        <div className="flex flex-row gap-4 w-full sm:w-auto">
           <FilterDropdown />
           <LanguageFilterDropdown />
           
