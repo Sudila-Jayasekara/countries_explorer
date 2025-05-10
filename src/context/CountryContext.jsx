@@ -1,5 +1,5 @@
 import { createContext, useContext, useState, useEffect } from 'react';
-import { fetchAllCountries, searchCountriesByName, fetchCountriesByRegion } from '../utils/api';
+import { fetchAllCountries, searchCountriesByName, fetchCountriesByRegion, fetchCountriesByLanguage } from '../utils/api';
 
 const CountryContext = createContext();
 
@@ -10,6 +10,7 @@ export const CountryProvider = ({ children }) => {
   const [error, setError] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [regionFilter, setRegionFilter] = useState('');
+  const [languageFilter, setLanguageFilter] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(12);
 
@@ -33,7 +34,7 @@ export const CountryProvider = ({ children }) => {
     loadCountries();
   }, []);
 
-  // Handle search and filter changes
+  // Handle search, region, and language filter changes
   useEffect(() => {
     const applyFilters = async () => {
       setLoading(true);
@@ -43,9 +44,26 @@ export const CountryProvider = ({ children }) => {
       try {
         let results = [];
         
-        if (searchTerm && regionFilter) {
+        if (languageFilter) {
+          // Start with language filter
+          results = await fetchCountriesByLanguage(languageFilter);
+          
+          // Apply search term filter if present
+          if (searchTerm) {
+            results = results.filter(country =>
+              country.name.common.toLowerCase().includes(searchTerm.toLowerCase())
+            );
+          }
+          
+          // Apply region filter if present
+          if (regionFilter) {
+            results = results.filter(country =>
+              country.region.toLowerCase() === regionFilter.toLowerCase()
+            );
+          }
+        } else if (searchTerm && regionFilter) {
           const searchResults = await searchCountriesByName(searchTerm);
-          results = searchResults.filter(country => 
+          results = searchResults.filter(country =>
             country.region.toLowerCase() === regionFilter.toLowerCase()
           );
         } else if (searchTerm) {
@@ -70,7 +88,7 @@ export const CountryProvider = ({ children }) => {
     }, 300);
 
     return () => clearTimeout(debounceTimer);
-  }, [searchTerm, regionFilter, countries]);
+  }, [searchTerm, regionFilter, languageFilter, countries]);
 
   // Get current countries for pagination
   const indexOfLastItem = currentPage * itemsPerPage;
@@ -82,6 +100,7 @@ export const CountryProvider = ({ children }) => {
   const clearFilters = () => {
     setSearchTerm('');
     setRegionFilter('');
+    setLanguageFilter('');
     setCurrentPage(1);
     setFilteredCountries(countries);
   };
@@ -102,6 +121,8 @@ export const CountryProvider = ({ children }) => {
         setSearchTerm,
         regionFilter,
         setRegionFilter,
+        languageFilter,
+        setLanguageFilter,
         clearFilters,
       }}
     >

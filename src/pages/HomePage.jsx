@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import SearchBar from '../components/SearchBar';
 import FilterDropdown from '../components/FilterDropdown';
+import LanguageFilterDropdown, { languages } from '../components/LanguageFilterDropdown';
 import CountryList from '../components/CountryList';
 import { useCountries } from '../context/CountryContext';
 import { FaGlobeAmericas, FaTimes } from 'react-icons/fa';
@@ -10,6 +11,7 @@ const HomePage = () => {
   const { 
     searchTerm, 
     regionFilter, 
+    languageFilter,
     clearFilters, 
     loading, 
     error,
@@ -22,7 +24,7 @@ const HomePage = () => {
     document.title = 'Countries Explorer | Home';
   }, []);
 
-  const hasFilters = searchTerm || regionFilter;
+  const hasFilters = searchTerm || regionFilter || languageFilter;
   const startIndex = (currentPage - 1) * itemsPerPage + 1;
   const endIndex = Math.min(startIndex + itemsPerPage - 1, totalItems);
 
@@ -52,6 +54,7 @@ const HomePage = () => {
         <SearchBar />
         <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
           <FilterDropdown />
+          <LanguageFilterDropdown />
           
           {hasFilters && (
             <button 
@@ -72,6 +75,7 @@ const HomePage = () => {
             Showing {startIndex}-{endIndex} of {totalItems} {totalItems === 1 ? 'country' : 'countries'}
             {searchTerm && ` matching "${searchTerm}"`}
             {regionFilter && ` in ${regionFilter}`}
+            {languageFilter && ` speaking ${languages.find(lang => lang.value === languageFilter)?.label || languageFilter}`}
           </p>
         </div>
       )}

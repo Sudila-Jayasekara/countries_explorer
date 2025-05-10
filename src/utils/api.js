@@ -72,10 +72,24 @@ export const fetchCountryBorders = async (codes) => {
   }
 };
 
+export const fetchCountriesByLanguage = async (language, fields = ['name', 'population', 'region', 'capital', 'flags', 'cca3']) => {
+  try {
+    const response = await api.get(`/lang/${language}?fields=${fields.join(',')}`);
+    return response.data;
+  } catch (error) {
+    // If no countries found for the language, return empty array instead of error
+    if (error.response && error.response.status === 404) {
+      return [];
+    }
+    throw error;
+  }
+};
+
 export default {
   fetchAllCountries,
   searchCountriesByName,
   fetchCountriesByRegion,
   fetchCountryByCode,
-  fetchCountryBorders
+  fetchCountryBorders,
+  fetchCountriesByLanguage
 };
