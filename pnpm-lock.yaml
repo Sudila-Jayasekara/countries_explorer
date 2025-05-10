@@ -32,6 +32,9 @@ importers:
       react-spinners:
         specifier: ^0.13.8
         version: 0.13.8(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      rest-countries-explorer:
+        specifier: 'link:'
+        version: 'link:'
     devDependencies:
       '@eslint/js':
         specifier: ^9.9.1
